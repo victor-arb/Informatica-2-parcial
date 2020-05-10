@@ -45,7 +45,7 @@ Cartelera menuAdmin(Cartelera _cartelera){
             cout <<" 1 - Ingresar una pelicula a la cartelera"<<endl
                  <<" 2 - Quitar una pelicula de la cartelera"<<endl
                  <<" 3 - Generar un reporte"<<endl
-                 <<" 4 - Salir"<<endl;
+                 <<" 4 - Salir y guardar cartelera en un archivo."<<endl;
             cout <<"Ingrese la opcion elegida -> "; cin>>option1;
         }while(option1 <"1" && option1 > "4");
         if (option1 == "1"){        //Ingresa la pelicula
@@ -195,3 +195,31 @@ Cartelera menuUsuario(Cartelera _cartelera){
     return _cartelera;
 }
 
+void pagoUsuario(int valor_precio){
+    int billetes[] = {50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50};
+    int cantidad[10];
+    int resultado, dinero_usuario;
+    bool pago;
+    do{
+        pago = true;
+        cout << "Ingrese el dinero a pagar, se le devolvera de ser necesario: "; cin >> dinero_usuario;
+        if (dinero_usuario < valor_precio) pago=false;
+        if (pago == false) cout<<"No ha pagado el valor requerido, vuelva a intentarlo"<<endl;
+    }while(pago == false);
+
+    int devuelta = dinero_usuario-valor_precio;
+    resultado = devuelta;
+
+    for (int i = 0; i < 10; ++i) {
+        cantidad[i] = resultado / billetes[i];
+        resultado = resultado % billetes[i];
+        //cout << cantidad[i];
+    }
+    cout<<"Su devuelta sera: "<<endl;
+    for (int i = 0; i < 10; ++i) {
+        cout << billetes[i] << " : " << cantidad[i] << endl;
+    }
+
+    cout << "Faltante : " << resultado << endl;
+
+}
