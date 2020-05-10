@@ -146,7 +146,11 @@ void Pelicula::showSala()
             }
 
         }
-        cout<< "  || "<<auxLetra<<" |"<<endl;
+        if(i == 0 || i == 1 ){
+            cout<< "  || "<<auxLetra<<" |  ----> VibroSound "<<formato<<endl;
+        }else {
+            cout<< "  || "<<auxLetra<<" |  ----> General "<<formato<<endl;
+        }
         cout<<aux<<endl;
         auxLetra[0] -= 1;
     }
