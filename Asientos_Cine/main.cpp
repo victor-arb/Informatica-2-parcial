@@ -4,12 +4,13 @@
 #include <vector>
 #include <pelicula.h>
 #include <cartelera.h>
-
+#include <ventas.h>
 using namespace std;
 
-Cartelera menuAdmin(Cartelera _cartelera);
-bool validateAdmin(string _cont_admin);
-Cartelera menuUsuario(Cartelera _cartelera);
+Cartelera menuAdmin(Cartelera _cartelera);          //Menu con las funciones del administrador
+bool validateAdmin(string _cont_admin);             //Valida la contraseña del administrador
+Cartelera menuUsuario(Cartelera _cartelera);        //Menu con las funciones del usuario
+void pagoUsuario(int valor_precio);                 //Funcion que efectua el pago del usuario
 int main()
 {
     string option = "";
@@ -108,6 +109,88 @@ Cartelera menuAdmin(Cartelera _cartelera){
             cout<<"Ha salido del perfil de administrador. "<<endl;
         }
 
+    }
+    return _cartelera;
+}
+
+//Menu de Usuario
+Cartelera menuUsuario(Cartelera _cartelera){
+    string nombre_usuario;
+    cout<<"Ha ingresado como Usuario."<<endl;
+    cout<<" Ingrese el nombre del usuario: "<<nombre_usuario;
+    cout<<" Bienvenido "<<nombre_usuario<<endl<<"A continuacion se muestra la cartelera.";
+    _cartelera.showCartelera();         //Muestra la cartelera
+    Ventas ventas_usuario;
+    ventas_usuario.setNombreUsuario(nombre_usuario);        //Registra al usuario que va a comprar
+    string option2="";
+    while(option2 != "3"){
+        do{
+            cout <<" 1 - Mostrar tabla de precios segun el formato de la pelicula"<<endl
+                 <<" 2 - Reservar asiento"<<endl
+                 <<" 3 - Salir"<<endl;
+            cout <<"Ingrese la opcion elegida -> "; cin>>option2;
+        }while(option2 <"1" && option2 > "3");
+        if (option2 == "1"){
+            Ventas().showTablaPrecios();        //Muestra la tabla de precios
+        }
+        else if (option2 == "2") {
+            int _id, columna;
+            string fila;
+            bool idd;           //Mira si existe el id
+            do{
+                idd = false;
+                cout<<"Ingrese el id(identificacion) de la pelicula de la que desea hacer una reservacion: "; cin>>_id;
+                map<int,Pelicula>::iterator iter;
+                for (iter=_cartelera.getCartelera().begin();iter!=_cartelera.getCartelera().end();iter++) {
+                    if (iter->first == _id){
+                        idd=true;
+                        iter->second.showSala();
+                        cout<<"Ingrese la fila del asiento que desea reservar: ";cin>>fila;
+                        if (fila[0] - 'A' <= iter->second.getFila()){       //Mira si la fila existe
+                            cout<<"Ingrese la columna del asiento que desea reservar: "; cin>>columna;
+                            if (columna>0 && columna < iter->second.getColumna()){      //Mira si la columna existe
+                                //Mira a que tipo pertenece el asiento elegido;
+                                int valor_precio=0;
+                                string formato=iter->second.getFormato();
+                                if(((fila[0]+(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
+                                    if(formato == "3D") valor_precio = 11900;
+                                    else if (formato == "2D") valor_precio = 9900;
+                                }
+                                else{                                                          //Mira si el asiento es general
+                                    if(formato == "3D") valor_precio = 10800;
+                                    else if (formato == "2D") valor_precio = 7900;
+                                }
+                                cout<<"El precio del asiento elegido es: $"<<valor_precio<<endl;
+                                pagoUsuario(valor_precio);                          //El usuario realiza el pago
+
+                                ventas_usuario.setFilaAsiento(fila);
+                                ventas_usuario.setColumnAsiento(columna);
+                                ventas_usuario.comprarAsientos(_cartelera,_id);
+
+                                //Se añade al registro los asientos comprados
+
+
+
+
+
+                            }
+                            else {
+                                cout<<"Ingreso una columna incorrecta"<<endl;
+                                idd=false;
+                            }
+                        }
+                        else {
+                            cout<<"Ingreso una fila incorrecta"<<endl;
+                            idd=false;
+                        }
+
+
+                    }
+                }
+                if(idd == false) cout<<"El id ingresado no existe o ingreso una fila o columna incorrecta, vuelva a intentarlo. ";
+            }while(idd == false);
+
+        }
     }
     return _cartelera;
 }
