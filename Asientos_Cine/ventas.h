@@ -4,6 +4,8 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <cartelera.h>
+#include <pelicula.h>
 
 using namespace std;
 
@@ -15,10 +17,11 @@ public:
     ~Ventas();
 
     void showTablaPrecios();        //Muestra la tabla de precios
+    void comprarAsientos(Cartelera _cartelera, int _id);         //Hace la reservacion del asiento;
+    void updateTotalCompra();       //Actualiza el total comprado por el usuario
     //Metodos setters
     void setNombreUsuario(string _nombre_usuario);
     void setValorCompra(int _valor_compra);
-    void setFormatoPel(string _formato_pel);
     void setFilaAsiento(string _fila_asiento);
     void setColumnAsiento(int _col_asiento);
 
@@ -32,7 +35,7 @@ public:
 private:
     string nombre_usuario;
     int valor_compra;           //Valor de la compra de acuerdo al tipo de silla
-    string formato_pel;
+    int total_compra;           //Total comprado por el usuario
     string fila_asiento;        //Fila del asiento que se compro
     int col_asiento;            //Columna del asiento que se compro
 };

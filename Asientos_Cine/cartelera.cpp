@@ -35,7 +35,7 @@ void Cartelera::showCartelera()
             <<"  |  "<<iter->second.getFormato()<<"  |"<<endl;
     }
     */
-
+    cout<<aux<<endl<<" |          CARTELERA            | "<<endl;
     for (iter = cartelera.begin(); iter != cartelera.end();iter++) {
         cout<<aux<<endl;
         cout<<" |         ID           |  "<<iter->first<<"  |"<<endl<<aux<<endl

@@ -17,10 +17,6 @@ void Ventas::setValorCompra(int _valor_compra)
 {
     valor_compra=_valor_compra;
 }
-void Ventas::setFormatoPel(string _formato_pel)
-{
-    formato_pel=_formato_pel;
-}
 void Ventas::setFilaAsiento(string _fila_asiento)
 {
     fila_asiento=_fila_asiento;
@@ -66,4 +62,23 @@ void Ventas::showTablaPrecios()
         <<" |     3    |  VibroSound 2D    |   $9900   |"<<endl<<aux<<endl
         <<" |     4    |  VibroSound 3D    |   $11900  |"<<endl<<aux<<endl;
 
+}
+
+//Reserva el asiento
+void Ventas::comprarAsientos(Cartelera _cartelera, int _id)
+{
+    map<int,Pelicula> mapcartelera_temp =  _cartelera.getCartelera();
+    map<int,Pelicula>::iterator iter;
+    for (iter = mapcartelera_temp.begin(); iter != mapcartelera_temp.end(); iter++) {
+        if (iter->first == _id){        //Busca el id que contiene la pelicula
+            iter->second.reservar(fila_asiento, col_asiento);  //Hace la reservacion
+        }
+    }
+    updateTotalCompra(); //Actualiza el total de las compras realizadas por el usuario
+
+}
+//Actualiza el total comprado por el usuario
+void Ventas::updateTotalCompra()
+{
+    total_compra += valor_compra;
 }
