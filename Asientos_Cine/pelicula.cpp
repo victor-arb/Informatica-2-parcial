@@ -119,6 +119,7 @@ int Pelicula::getColumna()
 //Mostrar la sala con los asientos disponibles
 void Pelicula::showSala()
 {
+    cout<<"Los asientos disponibles se simbolizan con '+' y los ocupados con '-': "<<endl<<endl;
     string aux(unsigned(ncol)*7, '-');
     cout<<aux<<endl;
     cout<<"   ";
@@ -169,13 +170,36 @@ void Pelicula::showSala()
 
 }
 
+bool Pelicula::validateReservar(string fila,  int col){
+    bool reservacion = true;
+    string aux = "A";
+    int _fila = ((aux[0]+(nfil-1))-fila[0]);     //Numero equivalente de la fila al string ingresado
+    for (int i = 0; i < nfil; i++) {
+        for (int j=0; j< ncol; j++) {
+            if (i == _fila && j==col-1) {
+                if(asientos_sala[i][j] == "-"){         //Comprueba si el asiento esta disponible
+                    cout<<"El asiento esta ocupado. "<<endl;
+                    reservacion = false;
+                }
+
+            }
+
+        }
+    };
+    return reservacion;
+}
+
 void Pelicula::reservar(string fila,  int col)
 {
     string aux = "A";
     int _fila = ((aux[0]+(nfil-1))-fila[0]);     //Numero equivalente de la fila al string ingresado
     for (int i = 0; i < nfil; i++) {
         for (int j=0; j< ncol; j++) {
-            if (i == _fila && j==col-1) asientos_sala[i][j] = "-";    //Realiza la reservacion
+            if (i == _fila && j==col-1) {
+                asientos_sala[i][j] = "-";    //Realiza la reservacion
+
+            }
+
         }
     };
 }

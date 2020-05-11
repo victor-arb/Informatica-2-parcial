@@ -28,9 +28,9 @@ public:
     //Metodos getters
     string getNombreUsuario();
     int getValorCompra();
-    string getFormatoPel();
     string getFilaAsiento();
     int getColumnAsiento();
+    int getTotalCompra();
 
 private:
     string nombre_usuario;

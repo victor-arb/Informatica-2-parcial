@@ -44,8 +44,9 @@ Cartelera menuAdmin(Cartelera _cartelera){
         do{
             cout <<" 1 - Ingresar una pelicula a la cartelera"<<endl
                  <<" 2 - Quitar una pelicula de la cartelera"<<endl
-                 <<" 3 - Generar un reporte"<<endl
-                 <<" 4 - Salir y guardar cartelera en un archivo."<<endl;
+                 <<" 3 - Cargar Cartelera desde un Archivo con los asientos previamente reservados"
+                 <<" 4 - Generar un reporte"<<endl
+                 <<" 5 - Salir y guardar cartelera en un archivo."<<endl;
             cout <<"Ingrese la opcion elegida -> "; cin>>option1;
         }while(option1 <"1" && option1 > "4");
         if (option1 == "1"){        //Ingresa la pelicula
@@ -149,28 +150,41 @@ Cartelera menuUsuario(Cartelera _cartelera){
                         if (fila[0] - 'A' <= iter->second.getFila()){       //Mira si la fila existe
                             cout<<"Ingrese la columna del asiento que desea reservar: "; cin>>columna;
                             if (columna>0 && columna < iter->second.getColumna()){      //Mira si la columna existe
-                                //Mira a que tipo pertenece el asiento elegido;
-                                int valor_precio=0;
-                                string formato=iter->second.getFormato();
-                                if(((fila[0]+(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
-                                    if(formato == "3D") valor_precio = 11900;
-                                    else if (formato == "2D") valor_precio = 9900;
+                                idd = iter->second.validateReservar(fila,columna);      //Mira si el asiento esta ocupado
+                                if (idd == true){
+                                    //Mira a que tipo pertenece el asiento elegido;
+                                    int valor_precio=0;
+                                    string formato=iter->second.getFormato();
+                                    if(((fila[0]+(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
+                                        if(formato == "3D") valor_precio = 11900;
+                                        else if (formato == "2D") valor_precio = 9900;
+                                    }
+                                    else{                                                          //Mira si el asiento es general
+                                        if(formato == "3D") valor_precio = 10800;
+                                        else if (formato == "2D") valor_precio = 7900;
+                                    }
+
+                                    cout<<"El precio del asiento elegido es: $"<<valor_precio<<endl;
+                                    pagoUsuario(valor_precio);                          //El usuario realiza el pago
+
+                                    ventas_usuario.setFilaAsiento(fila);
+                                    ventas_usuario.setColumnAsiento(columna);
+                                    ventas_usuario.setValorCompra(valor_precio);           //Guarda el registro de la compra
+                                    ventas_usuario.comprarAsientos(_cartelera,_id);        //Hace la compra del asiento
+
+
+                                    //Se añade al registro los asientos comprados
+
+
+
+
+
+
+
                                 }
-                                else{                                                          //Mira si el asiento es general
-                                    if(formato == "3D") valor_precio = 10800;
-                                    else if (formato == "2D") valor_precio = 7900;
+                                else {
+                                    cout<<"Debe ingresar un asiento disponible."<<endl;
                                 }
-                                cout<<"El precio del asiento elegido es: $"<<valor_precio<<endl;
-                                pagoUsuario(valor_precio);                          //El usuario realiza el pago
-
-                                ventas_usuario.setFilaAsiento(fila);
-                                ventas_usuario.setColumnAsiento(columna);
-                                ventas_usuario.comprarAsientos(_cartelera,_id);
-
-                                //Se añade al registro los asientos comprados
-
-
-
 
 
                             }
@@ -221,5 +235,7 @@ void pagoUsuario(int valor_precio){
     }
 
     cout << "Faltante : " << resultado << endl;
+
+
 
 }

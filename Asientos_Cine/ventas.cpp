@@ -35,10 +35,6 @@ int Ventas::getValorCompra()
 {
     return valor_compra;
 }
-string Ventas::getFormatoPel()
-{
-    return formato_pel;
-}
 string Ventas::getFilaAsiento()
 {
     return fila_asiento;
@@ -47,8 +43,10 @@ int Ventas::getColumnAsiento()
 {
     return col_asiento;
 }
-
-
+int Ventas::getTotalCompra()
+{
+    return total_compra;
+}
 //Muestra la tabla de precios
 void Ventas::showTablaPrecios()
 {
@@ -74,6 +72,7 @@ void Ventas::comprarAsientos(Cartelera _cartelera, int _id)
             iter->second.reservar(fila_asiento, col_asiento);  //Hace la reservacion
         }
     }
+
     updateTotalCompra(); //Actualiza el total de las compras realizadas por el usuario
 
 }

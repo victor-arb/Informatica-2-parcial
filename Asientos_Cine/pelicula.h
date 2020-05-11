@@ -37,6 +37,7 @@ public:
 
     void showSala();                //Muestra la sala con los asientos disponibles
     void reservar(string fila,  int col);          //Realiza la reserva de una asiento
+    bool validateReservar(string fila,  int col);
 
 private:
     //Atributos
