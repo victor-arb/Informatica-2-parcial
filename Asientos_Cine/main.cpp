@@ -5,16 +5,29 @@
 #include <pelicula.h>
 #include <cartelera.h>
 #include <ventas.h>
+#include <reportes.h>
+#include <fstream>
+
 using namespace std;
 
-Cartelera menuAdmin(Cartelera _cartelera);          //Menu con las funciones del administrador
+static string ArchivoVentas;           //Variable global con la direccion del archivo con los reportes de ventas
+static string ArchivoTotales;          //Variable global con la direccion del archivo con los reportes totales
+static string DirArcivoAdmin;             //Variable global con la direccion del archivo de administrador
+
+Cartelera menuAdmin(Cartelera _cartelera,Reportes& _reporte);          //Menu con las funciones del administrador
 bool validateAdmin(string _cont_admin);             //Valida la contraseña del administrador
-Cartelera menuUsuario(Cartelera _cartelera);        //Menu con las funciones del usuario
+Cartelera menuUsuario(Cartelera _cartelera, Reportes& _reporte);        //Menu con las funciones del usuario
 void pagoUsuario(int valor_precio);                 //Funcion que efectua el pago del usuario
+
 int main()
 {
     string option = "";
     Cartelera _cartelera;
+    Reportes _reporte;
+    _reporte.setArchivoVentas(ArchivoVentas);
+    _reporte.setArchivoTotales(ArchivoTotales);
+
+    //Menu de entrada
     while(option != "3"){
         do{
            cout <<" 1 - Ingresar como administrador"<<endl
@@ -23,14 +36,14 @@ int main()
            cout<<"Ingrese la opcion elegida -> "; cin>>option;
         }while(option < "1"  && option > "3");
 
-        if (option == "1") menuAdmin(_cartelera);
-        else if (option == "2") _cartelera = menuUsuario(_cartelera);
+        if (option == "1") menuAdmin(_cartelera, _reporte);
+        else if (option == "2") _cartelera = menuUsuario(_cartelera, _reporte);
     }
 
 }
 
 //Menu del Administrador
-Cartelera menuAdmin(Cartelera _cartelera){
+Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
     cout<<"Bienvenido, Ha ingresado como administrador."<<endl;
     bool val = true;
     do{
@@ -40,7 +53,7 @@ Cartelera menuAdmin(Cartelera _cartelera){
     }while(val == false);
     string option1="";
     //Menu
-    while(option1 != "4"){
+    while(option1 != "5"){
         do{
             cout <<" 1 - Ingresar una pelicula a la cartelera"<<endl
                  <<" 2 - Quitar una pelicula de la cartelera"<<endl
@@ -48,7 +61,7 @@ Cartelera menuAdmin(Cartelera _cartelera){
                  <<" 4 - Generar un reporte"<<endl
                  <<" 5 - Salir y guardar cartelera en un archivo."<<endl;
             cout <<"Ingrese la opcion elegida -> "; cin>>option1;
-        }while(option1 <"1" && option1 > "4");
+        }while(option1 <"1" && option1 > "5");
         if (option1 == "1"){        //Ingresa la pelicula
             //Atributos para la pelicula
             string nombre, genero, duracion,hora, clasificacion, formato ;
@@ -103,10 +116,32 @@ Cartelera menuAdmin(Cartelera _cartelera){
             }while(idd == true);
         }
         else if (option1 == "3") {      //Genera un reporte
+            string optionR="";
+            do{
+                cout<<"1 - Mostrar reporte de Ventas por Usuarios"<<endl
+                    <<"2 - Mostrar reporte de Ventas por registros Totales"<<endl;
+                cout<<"Ingrese una opcion: "; cin>>optionR;
+            }while(optionR < "1" && optionR >"2");
+
+            if (optionR == "1"){
+                cout<< "---------------------------------------"<<endl;
+                cout<< "            REPORTE DE VENTAS          "<<endl;
+                cout<< "---------------------------------------"<<endl;
+                _reporte.generarReporteVentas();                    //Genera el reporte de ventas por usuario
+            }
+            else {
+                cout<< "---------------------------------------"<<endl;
+                cout<< "       REPORTE DE VENTAS TOTALES       "<<endl;
+                cout<< "---------------------------------------"<<endl;
+                _reporte.generarReporteTotales();                    //Genera el reporte de ventas por usuario
+            }
 
 
         }
-        else {
+        else if (option1 == "4"){       //Carga la cartelera desde un archivo
+
+        }
+        else {                          //Sale y guarda la cartelera
             cout<<"Ha salido del perfil de administrador. "<<endl;
         }
 
@@ -114,8 +149,28 @@ Cartelera menuAdmin(Cartelera _cartelera){
     return _cartelera;
 }
 
+bool validateAdmin(string _cont_admin)             //Valida la contraseña del administrador
+{
+    bool vali = false;
+    ifstream archivoAdmin;
+    string contraseña;
+    archivoAdmin.open(DirArcivoAdmin.c_str(), ios::in);
+
+    if(archivoAdmin.fail()){
+        cout<<"No se pudo abrir el archivo de Administrador."<<endl;
+        exit(1);
+    }
+
+    while(!archivoAdmin.eof()){ //mientras no sea final del archivo, solo va a terminar con el contenido de la linea pedida
+        getline(archivoAdmin,contraseña);
+    }
+    archivoAdmin.close();
+    if (_cont_admin == contraseña) vali=true;
+    return vali;
+}
+
 //Menu de Usuario
-Cartelera menuUsuario(Cartelera _cartelera){
+Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
     string nombre_usuario;
     cout<<"Ha ingresado como Usuario."<<endl;
     cout<<" Ingrese el nombre del usuario: "<<nombre_usuario;
@@ -156,12 +211,25 @@ Cartelera menuUsuario(Cartelera _cartelera){
                                     int valor_precio=0;
                                     string formato=iter->second.getFormato();
                                     if(((fila[0]+(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
-                                        if(formato == "3D") valor_precio = 11900;
-                                        else if (formato == "2D") valor_precio = 9900;
+                                        if(formato == "3D"){
+                                            valor_precio = 11900;
+                                            _reporte.compraVibro3d(valor_precio);                   //Guarda el registro de la compra
+                                        }
+                                        else if (formato == "2D"){
+                                            valor_precio = 9900;
+                                            _reporte.compraVibro2d(valor_precio);                  //Guarda el registro de la compra
+                                        }
                                     }
                                     else{                                                          //Mira si el asiento es general
-                                        if(formato == "3D") valor_precio = 10800;
-                                        else if (formato == "2D") valor_precio = 7900;
+                                        if(formato == "3D"){
+                                            valor_precio = 10800;
+                                            _reporte.compraGeneral3d(valor_precio);                 //Guarda el registro de la compra
+                                        }
+                                        else if (formato == "2D"){
+                                            valor_precio = 7900;
+                                            _reporte.compraGeneral2d(valor_precio);
+                                        }
+
                                     }
 
                                     cout<<"El precio del asiento elegido es: $"<<valor_precio<<endl;
@@ -169,17 +237,8 @@ Cartelera menuUsuario(Cartelera _cartelera){
 
                                     ventas_usuario.setFilaAsiento(fila);
                                     ventas_usuario.setColumnAsiento(columna);
-                                    ventas_usuario.setValorCompra(valor_precio);           //Guarda el registro de la compra
+                                    ventas_usuario.setValorCompra(valor_precio);           //Guarda el registro de la compra por Usuario
                                     ventas_usuario.comprarAsientos(_cartelera,_id);        //Hace la compra del asiento
-
-
-                                    //Se añade al registro los asientos comprados
-
-
-
-
-
-
 
                                 }
                                 else {
@@ -204,6 +263,10 @@ Cartelera menuUsuario(Cartelera _cartelera){
                 if(idd == false) cout<<"El id ingresado no existe o ingreso una fila o columna incorrecta, vuelva a intentarlo. ";
             }while(idd == false);
 
+        }
+        else {
+            _reporte.setReporteVentas(ventas_usuario);          //Se guardan las compras realizadas por el usuario
+            cout<<"Ha salido del perfil de Usuario."<<endl;
         }
     }
     return _cartelera;

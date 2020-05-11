@@ -3,6 +3,19 @@
 Reportes::Reportes()
 {
     cont_id = 0;
+    cont_gener3d=0;
+    cont_gener2d=0;
+    cont_vibro3d=0;
+    cont_vibro2d=0;
+
+    total_gener3d=0;
+    total_gener2d=0;
+    total_vibro3d=0;
+    total_vibro2d=0;
+
+    total=0;
+    ArchivoVentas ="";
+    ArchivoTotales ="";
 }
 Reportes::~Reportes()
 {
@@ -31,6 +44,7 @@ void Reportes::generarReporteVentas()               //Imprime el reporte de vent
     }
 
     fileVentas << reporte_ventas<<endl;
+    cout<<"Se ha guardado el reporte con exito."<<endl;
     fileVentas.close();
 
 }
@@ -61,6 +75,7 @@ void Reportes::generarReporteTotales()          //Imprime el reporte de ventas t
     }
 
     fileTotales << reporte_totales <<endl;
+    cout<<"Se ha guardado el reporte con exito."<<endl;
     fileTotales.close();
 }
 
