@@ -11,7 +11,7 @@ using namespace std;
 class Pelicula
 {
 public:
-    Pelicula(string _nombre="", string _genero="", int _sala=0, string _hora="", int _nfil=0, int _ncol=0, string _clasificacion="", string _formato="");
+    Pelicula(string _nombre="", string _genero="", int _sala=0, string _hora="", int _nfil=10, int _ncol=15,string _duracion="", string _clasificacion="", string _formato="");
     ~Pelicula();
     void setNombre(string _nombre);
     void setGenero(string _genero);
@@ -51,8 +51,11 @@ private:
     string clasificacion;
     string formato;
 
-    string** asientos_sala;             //Matriz con el estado de los asientos de la sala de cine
     int nfil, ncol;
+
+    string asientos_sala[10][15];             //Matriz con el estado de los asientos de la sala de cine
+    //string **asientos_sala;
+
 };
 
 #endif // PELICULA_H

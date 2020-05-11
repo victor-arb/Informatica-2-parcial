@@ -7,9 +7,11 @@ SOURCES += \
         cartelera.cpp \
         main.cpp \
         pelicula.cpp \
+        reportes.cpp \
         ventas.cpp
 
 HEADERS += \
     cartelera.h \
     pelicula.h \
+    reportes.h \
     ventas.h

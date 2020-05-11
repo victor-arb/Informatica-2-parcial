@@ -12,7 +12,7 @@ using namespace std;
 
 static string ArchivoVentas;           //Variable global con la direccion del archivo con los reportes de ventas
 static string ArchivoTotales;          //Variable global con la direccion del archivo con los reportes totales
-static string DirArcivoAdmin;             //Variable global con la direccion del archivo de administrador
+static string DirArcivoAdmin = "../Asientos_cine/sudo.txt";             //Variable global con la direccion del archivo de administrador
 
 Cartelera menuAdmin(Cartelera _cartelera,Reportes& _reporte);          //Menu con las funciones del administrador
 bool validateAdmin(string _cont_admin);             //Valida la contraseña del administrador
@@ -29,6 +29,7 @@ int main()
 
     //Menu de entrada
     while(option != "3"){
+        cout<<endl<<endl;
         do{
            cout <<" 1 - Ingresar como administrador"<<endl
                 <<" 2 - Ingresar como Usuario"<<endl
@@ -36,7 +37,7 @@ int main()
            cout<<"Ingrese la opcion elegida -> "; cin>>option;
         }while(option < "1"  && option > "3");
 
-        if (option == "1") menuAdmin(_cartelera, _reporte);
+        if (option == "1") _cartelera = menuAdmin(_cartelera, _reporte);
         else if (option == "2") _cartelera = menuUsuario(_cartelera, _reporte);
     }
 
@@ -48,16 +49,18 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
     bool val = true;
     do{
         string cont_admin;
-        cout<<"Digite su contraseña de administrador -> "; cin>>cont_admin;
+        cout<<"Digite su contrasenia de administrador -> "; cin>>cont_admin;
         val = validateAdmin(cont_admin);
+        if(val == false) cout<<"Contrasenia incorrecta, vuelve a intentarlo"<<endl;
     }while(val == false);
     string option1="";
     //Menu
     while(option1 != "5"){
+        cout<<endl<<endl;
         do{
             cout <<" 1 - Ingresar una pelicula a la cartelera"<<endl
                  <<" 2 - Quitar una pelicula de la cartelera"<<endl
-                 <<" 3 - Cargar Cartelera desde un Archivo con los asientos previamente reservados"
+                 <<" 3 - Cargar Cartelera desde un Archivo con los asientos previamente reservados"<<endl
                  <<" 4 - Generar un reporte"<<endl
                  <<" 5 - Salir y guardar cartelera en un archivo."<<endl;
             cout <<"Ingrese la opcion elegida -> "; cin>>option1;
@@ -65,18 +68,33 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
         if (option1 == "1"){        //Ingresa la pelicula
             //Atributos para la pelicula
             string nombre, genero, duracion,hora, clasificacion, formato ;
-            int sala,fil,col, _id;
+            int sala,fil,col;
+            string _id;
             bool idd;           //Mira si se repite el id
+            cout<<endl;
             do{
                 idd = true;
                 cout<<"Ingrese el id(identificacion, un entero que no debe repetirse) de la pelicula: "; cin>>_id;
                 map<int,Pelicula>::iterator iter;
-                for (iter=_cartelera.getCartelera().begin();iter!=_cartelera.getCartelera().end();iter++) {
-                    if (iter->first == _id){
+                map<int,Pelicula> maptemp = _cartelera.getCartelera();
+                for (unsigned int i = 0; i < (_id.size());i++) {        //Valida que sean numeros
+                    if (!isdigit(_id[i])){
                         idd=false;
+                        break;
                     }
+
                 }
-                if(idd == false) cout<<"El id ingresado ya existe, vuelva a intentarlo. ";
+                if(idd == false){
+                    cout<<"Debe ingresar numeros enteros. Vuelva a intentarlo"<<endl;
+                }else {
+                    for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+                        if (iter->first == stoi(_id)){              //Mira que no hallan id iguales
+                            idd=false;
+                        }
+                    }
+                    if(idd == false) cout<<"El id ingresado ya existe, vuelva a intentarlo. "<<endl;
+                }
+
             }while(idd == false);
 
             cout << "Ingrese el nombre de la Pelicula: "; cin>>nombre;
@@ -89,33 +107,67 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
             fflush(stdin);
             cout<< "Ingrese la hora de la pelicula: "; cin>>hora;
             fflush(stdin);
-            cout<<"El numero de Asientos disponibles de la sala sera el numero de filas* numero de columnas: "<<endl;
-            cout<< "Ingrese el numero de filas que contiene la sala: "; cin>>fil;
-            cout<< "Ingrese el numero de columnas que contiene la sala: "; cin>>col;
-            cout<< "Ingrese el formato de la pelicula (3D o 2D): "; cin>>formato;
-            Pelicula peli(nombre,genero,sala,hora,fil,col,clasificacion,formato);
-            _cartelera.setCartelera(_id, peli);
+            cout<< "Ingrese la clasificacion de la pelicula: "; cin>>clasificacion;
+            fflush(stdin);
+            do{
+                cout<< "Ingrese el formato de la pelicula (3D o 2D): "; cin>>formato;
+                if (formato != "3D" && formato != "2D"){
+                    cout<<"Ingreso un Dato erroneo, Debe ser 2D o 3D. Vuelva a intentarlo."<<endl;
+                }
+            }while (formato != "3D" && formato != "2D");
+            fflush(stdin);
+            Pelicula peli(nombre,genero,sala,hora,fil=10,col=15,duracion,clasificacion,formato);
+            _cartelera.setCartelera(stoi(_id), peli);
+
+            map<int,Pelicula>::iterator iter;
+            map<int,Pelicula> maptemp = _cartelera.getCartelera();
+            for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+                if (iter->first == stoi(_id)){              //Mira que no hallan id iguales
+                    iter->second.showSala();
+                }
+            }
+
+            cout<<endl<<"Pelicula agregada exitosamente."<<endl;
         }
         else if (option1 == "2") {          //Quitar una pelicula de la cartelera
-            int _id ;
+            string _id ;
             _cartelera.showCartelera();     //Muestra la cartelera
             bool idd;                       //Mira si se repite el id
             //Eliminar
             do{
-                idd = false;
+                idd = true;
                 cout<<"Ingrese el id(identificacion) de la pelicula que desea eliminar: "; cin>>_id;
                 map<int,Pelicula>::iterator iter;
-                for (iter=_cartelera.getCartelera().begin();iter!=_cartelera.getCartelera().end();iter++) {
-                    if (iter->first == _id){
+                map<int,Pelicula> maptemp = _cartelera.getCartelera();
+                for (unsigned int i = 0; i < (_id.size());i++) {        //Valida que sean numeros
+                    if (!isdigit(_id[i])){
                         idd=false;
-                        _cartelera.deletePelicula(_id);         //Elimina la pelicula
                         break;
                     }
+
                 }
-                if(idd == true) cout<<"Debe ingresar un id existente, vuelva a intentarlo. ";
+                if(idd == false){
+                    cout<<"Debe ingresar numeros enteros. Vuelva a intentarlo"<<endl;
+                    idd=true;
+                }else {
+                    for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+                        if (iter->first == stoi(_id)){
+                            idd=false;
+                            _cartelera.deletePelicula(stoi(_id));         //Elimina la pelicula
+                            break;
+                        }
+                    }
+                    if(idd == true) cout<<"Debe ingresar un id existente, vuelva a intentarlo. "<<endl;
+                }
             }while(idd == true);
+
         }
-        else if (option1 == "3") {      //Genera un reporte
+        else if (option1 == "3") {      //Carga la cartelera desde un archivo
+
+
+
+        }
+        else if (option1 == "4"){      //Genera un reporte
             string optionR="";
             do{
                 cout<<"1 - Mostrar reporte de Ventas por Usuarios"<<endl
@@ -124,22 +176,19 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
             }while(optionR < "1" && optionR >"2");
 
             if (optionR == "1"){
+                cout<<endl;
                 cout<< "---------------------------------------"<<endl;
                 cout<< "            REPORTE DE VENTAS          "<<endl;
                 cout<< "---------------------------------------"<<endl;
                 _reporte.generarReporteVentas();                    //Genera el reporte de ventas por usuario
             }
             else {
+                cout<<endl;
                 cout<< "---------------------------------------"<<endl;
                 cout<< "       REPORTE DE VENTAS TOTALES       "<<endl;
                 cout<< "---------------------------------------"<<endl;
                 _reporte.generarReporteTotales();                    //Genera el reporte de ventas por usuario
             }
-
-
-        }
-        else if (option1 == "4"){       //Carga la cartelera desde un archivo
-
         }
         else {                          //Sale y guarda la cartelera
             cout<<"Ha salido del perfil de administrador. "<<endl;
@@ -153,7 +202,7 @@ bool validateAdmin(string _cont_admin)             //Valida la contraseña del a
 {
     bool vali = false;
     ifstream archivoAdmin;
-    string contraseña;
+    string contra;
     archivoAdmin.open(DirArcivoAdmin.c_str(), ios::in);
 
     if(archivoAdmin.fail()){
@@ -162,10 +211,10 @@ bool validateAdmin(string _cont_admin)             //Valida la contraseña del a
     }
 
     while(!archivoAdmin.eof()){ //mientras no sea final del archivo, solo va a terminar con el contenido de la linea pedida
-        getline(archivoAdmin,contraseña);
+        getline(archivoAdmin,contra);
     }
     archivoAdmin.close();
-    if (_cont_admin == contraseña) vali=true;
+    if (_cont_admin == contra) vali=true;
     return vali;
 }
 
@@ -173,13 +222,23 @@ bool validateAdmin(string _cont_admin)             //Valida la contraseña del a
 Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
     string nombre_usuario;
     cout<<"Ha ingresado como Usuario."<<endl;
-    cout<<" Ingrese el nombre del usuario: "<<nombre_usuario;
-    cout<<" Bienvenido "<<nombre_usuario<<endl<<"A continuacion se muestra la cartelera.";
-    _cartelera.showCartelera();         //Muestra la cartelera
+    cout<<" Ingrese el nombre del usuario: "; cin >>nombre_usuario;
+    cout<<endl<<" Bienvenido "<<nombre_usuario<<endl<<endl<<endl;
+    cout<<"A continuacion se muestra la cartelera."<<endl;
+    //_cartelera.showCartelera();         //Muestra la cartelera
     Ventas ventas_usuario;
     ventas_usuario.setNombreUsuario(nombre_usuario);        //Registra al usuario que va a comprar
     string option2="";
+
+//    map<int,Pelicula>::iterator iter;
+//    map<int,Pelicula> maptemp = _cartelera.getCartelera();
+//    for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+
+//        iter->second.showSala();
+//    }
     while(option2 != "3"){
+        _cartelera.showCartelera();         //Muestra la cartelera
+        cout<<endl<<endl;
         do{
             cout <<" 1 - Mostrar tabla de precios segun el formato de la pelicula"<<endl
                  <<" 2 - Reservar asiento"<<endl
@@ -190,19 +249,51 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
             Ventas().showTablaPrecios();        //Muestra la tabla de precios
         }
         else if (option2 == "2") {
-            int _id, columna;
-            string fila;
+            int columna;
+            string fila, _id;
             bool idd;           //Mira si existe el id
             do{
+                idd = true;
+                cout<<"Ingrese el id(identificacion) de la pelicula que desea reservar: "; cin>>_id;
+
+                for (unsigned int i = 0; i < (_id.size());i++) {        //Valida que sean numeros
+                    if (!isdigit(_id[i])){
+                        idd=false;
+                        break;
+                    }
+
+                }
+                if(idd == false){
+                    cout<<"Debe ingresar numeros enteros. Vuelva a intentarlo"<<endl;
+                    idd=true;
+                }else {
+                    map<int,Pelicula>::iterator iter;
+                    map<int,Pelicula> maptemp = _cartelera.getCartelera();
+                    for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+                        if (iter->first == stoi(_id)){
+                            idd=false;
+                            break;
+                        }
+                    }
+                    if(idd == true) cout<<"Debe ingresar un id existente, vuelva a intentarlo. "<<endl;
+
+                }
+
+            }while(idd == true);
+
+            do{
                 idd = false;
-                cout<<"Ingrese el id(identificacion) de la pelicula de la que desea hacer una reservacion: "; cin>>_id;
                 map<int,Pelicula>::iterator iter;
-                for (iter=_cartelera.getCartelera().begin();iter!=_cartelera.getCartelera().end();iter++) {
-                    if (iter->first == _id){
+                map<int,Pelicula> maptemp = _cartelera.getCartelera();
+                for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+                    cout<<_id<<endl;
+                    if (iter->first == stoi(_id)){
                         idd=true;
                         iter->second.showSala();
+                        fflush(stdin);
                         cout<<"Ingrese la fila del asiento que desea reservar: ";cin>>fila;
                         if (fila[0] - 'A' <= iter->second.getFila()){       //Mira si la fila existe
+                            fflush(stdin);
                             cout<<"Ingrese la columna del asiento que desea reservar: "; cin>>columna;
                             if (columna>0 && columna < iter->second.getColumna()){      //Mira si la columna existe
                                 idd = iter->second.validateReservar(fila,columna);      //Mira si el asiento esta ocupado
@@ -238,7 +329,7 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
                                     ventas_usuario.setFilaAsiento(fila);
                                     ventas_usuario.setColumnAsiento(columna);
                                     ventas_usuario.setValorCompra(valor_precio);           //Guarda el registro de la compra por Usuario
-                                    ventas_usuario.comprarAsientos(_cartelera,_id);        //Hace la compra del asiento
+                                    ventas_usuario.comprarAsientos(_cartelera,stoi(_id));        //Hace la compra del asiento
 
                                 }
                                 else {
@@ -260,8 +351,10 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
 
                     }
                 }
-                if(idd == false) cout<<"El id ingresado no existe o ingreso una fila o columna incorrecta, vuelva a intentarlo. ";
+                if(idd == false)cout <<"Ingreso una fila o columna incorrecta, vuelva a intentarlo. "<<endl;
+                maptemp.clear();
             }while(idd == false);
+
 
         }
         else {

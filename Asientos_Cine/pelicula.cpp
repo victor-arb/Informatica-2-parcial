@@ -1,6 +1,6 @@
 #include "pelicula.h"
 
-Pelicula::Pelicula(string _nombre, string _genero, int _sala, string _hora, int _nfil, int _ncol, string _clasificacion, string _formato)
+Pelicula::Pelicula(string _nombre, string _genero, int _sala, string _hora, int _nfil, int _ncol,string _duracion, string _clasificacion, string _formato)
 {
     nombre = _nombre;
     genero = _genero;
@@ -8,6 +8,7 @@ Pelicula::Pelicula(string _nombre, string _genero, int _sala, string _hora, int 
     hora = _hora;
     nfil = _nfil;
     ncol = _ncol;
+    duracion = _duracion;
     setAsientTotal();                       //Crea los asientos totales
     asien_disponible = asien_total;         //Asientos totales = filas * columnas
     setAsientosSala();                      //Crea la sala con los asientos en modo disponibles;
@@ -16,7 +17,6 @@ Pelicula::Pelicula(string _nombre, string _genero, int _sala, string _hora, int 
 }
 Pelicula::~Pelicula()
 {
-
 }
 
 //Metodos setters
@@ -57,17 +57,18 @@ void Pelicula::setFilas_Colum(int _nfil, int _ncol)
 //Crea los asientos en modo disponible, con el caracter "+"
 void Pelicula::setAsientosSala()
 {
-    asientos_sala = new string*[nfil];
-    for (int i = 0; i < nfil; i++) {
-        asientos_sala[i] = new string[ncol];
-    }
+//    asientos_sala = new string *[nfil];
+//    for (int i=0;i < nfil; i++) {
+//        asientos_sala[i] =  new string [ncol];
 
+//    }
     //Llena la matriz
     for (int i = 0; i < nfil; i++) {
         for (int j=0; j< ncol; j++) {
             asientos_sala[i][j] = "+";
         }
     }
+    showSala();
 }
 
 //Metodos getters
@@ -202,5 +203,6 @@ void Pelicula::reservar(string fila,  int col)
 
         }
     };
+    asien_disponible--;
 }
 
