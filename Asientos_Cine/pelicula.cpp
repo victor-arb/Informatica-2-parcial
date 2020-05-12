@@ -57,18 +57,18 @@ void Pelicula::setFilas_Colum(int _nfil, int _ncol)
 //Crea los asientos en modo disponible, con el caracter "+"
 void Pelicula::setAsientosSala()
 {
-//    asientos_sala = new string *[nfil];
-//    for (int i=0;i < nfil; i++) {
-//        asientos_sala[i] =  new string [ncol];
+    asientos_sala = new string *[nfil];
+    for (int i=0;i < nfil; i++) {
+        asientos_sala[i] =  new string [ncol];
 
-//    }
+    }
     //Llena la matriz
     for (int i = 0; i < nfil; i++) {
         for (int j=0; j< ncol; j++) {
             asientos_sala[i][j] = "+";
         }
     }
-    showSala();
+    //showSala();
 }
 
 //Metodos getters
@@ -175,6 +175,12 @@ bool Pelicula::validateReservar(string fila,  int col){
     bool reservacion = true;
     string aux = "A";
     int _fila = ((aux[0]+(nfil-1))-fila[0]);     //Numero equivalente de la fila al string ingresado
+    if(asientos_sala[_fila][col] == "-"){         //Comprueba si el asiento esta disponible
+        cout<<"El asiento esta ocupado. "<<endl;
+        reservacion = false;
+    }
+
+    /*
     for (int i = 0; i < nfil; i++) {
         for (int j=0; j< ncol; j++) {
             if (i == _fila && j==col-1) {
@@ -187,6 +193,7 @@ bool Pelicula::validateReservar(string fila,  int col){
 
         }
     };
+    */
     return reservacion;
 }
 
@@ -194,6 +201,9 @@ void Pelicula::reservar(string fila,  int col)
 {
     string aux = "A";
     int _fila = ((aux[0]+(nfil-1))-fila[0]);     //Numero equivalente de la fila al string ingresado
+    asientos_sala[_fila][col] = "-";
+
+    /*
     for (int i = 0; i < nfil; i++) {
         for (int j=0; j< ncol; j++) {
             if (i == _fila && j==col-1) {
@@ -202,7 +212,7 @@ void Pelicula::reservar(string fila,  int col)
             }
 
         }
-    };
+    };*/
     asien_disponible--;
 }
 

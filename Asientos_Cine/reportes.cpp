@@ -22,19 +22,6 @@ Reportes::~Reportes()
 }
 void Reportes::generarReporteVentas()               //Imprime el reporte de ventas de los usuarios y lo guarda en un archivo
 {
-    string reporte_ventas;
-    string totalCompra;
-    map<int,Ventas>::iterator iter;
-    for (iter=reporteVentas.begin(); iter!= reporteVentas.end();iter++) {
-        reporte_ventas += iter->second.getNombreUsuario() + ":";      //Añade el nombre del usuario
-        totalCompra = to_string(iter->second.getTotalCompra());
-        reporte_ventas += totalCompra + ",";                     //Añade el total comprado por el usuario
-    }
-
-    cout<<reporte_ventas<<endl;
-
-
-    //Guarda en el archivo
     ofstream fileVentas;
 
     fileVentas.open(ArchivoVentas.c_str(),ios::app);//Añade una linea nueva
@@ -42,9 +29,20 @@ void Reportes::generarReporteVentas()               //Imprime el reporte de vent
         cout<<"El archivo con el reporte de ventas no se pudo abrir."<<endl;
         exit(1);
     }
+    string reporte_ventas;
+    string totalCompra;
+    map<int,Ventas>::iterator iter;
+    for (iter=reporteVentas.begin(); iter!= reporteVentas.end();iter++) {
+        reporte_ventas += iter->second.getNombreUsuario() + ":";      //Añade el nombre del usuario
+        totalCompra = to_string(iter->second.getTotalCompra());
+        reporte_ventas += totalCompra + ",";    //Añade el total comprado por el usuario
+        fileVentas << reporte_ventas;           //Guarda en el archivo
+    }
 
-    fileVentas << reporte_ventas<<endl;
-    cout<<"Se ha guardado el reporte con exito."<<endl;
+    cout<<reporte_ventas<<endl;
+
+
+    cout<<endl<<"Se ha guardado el reporte con exito."<<endl;
     fileVentas.close();
 
 }
@@ -53,14 +51,12 @@ void Reportes::generarReporteTotales()          //Imprime el reporte de ventas t
 {
     string reporte_totales;
     updateTotal();                                  //Actuliza el total de todas las ventas
-    map<int,Ventas>::iterator iter;
-    for (iter=reporteVentas.begin(); iter!= reporteVentas.end();iter++) {
-        reporte_totales += "General 2D:"+to_string(total_gener2d)+";"+to_string(cont_gener2d)+"- ventas\n";
-        reporte_totales += "General 3D:"+to_string(total_gener3d)+";"+to_string(cont_gener3d)+"- ventas\n";
-        reporte_totales += "vibroSound 2D:"+to_string(total_vibro2d)+";"+to_string(cont_vibro2d)+"- ventas\n";
-        reporte_totales += "vibroDound 3D:"+to_string(total_vibro3d)+";"+to_string(cont_vibro3d)+"- ventas\n";
-        reporte_totales += "Total:" + to_string(total);
-    }
+
+    reporte_totales += "General 2D:"+to_string(total_gener2d)+";"+to_string(cont_gener2d)+"- ventas\n";
+    reporte_totales += "General 3D:"+to_string(total_gener3d)+";"+to_string(cont_gener3d)+"- ventas\n";
+    reporte_totales += "vibroSound 2D:"+to_string(total_vibro2d)+";"+to_string(cont_vibro2d)+"- ventas\n";
+    reporte_totales += "vibroDound 3D:"+to_string(total_vibro3d)+";"+to_string(cont_vibro3d)+"- ventas\n";
+    reporte_totales += "Total:" + to_string(total);
 
     cout<<reporte_totales<<endl;
 

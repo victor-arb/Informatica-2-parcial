@@ -53,8 +53,8 @@ private:
 
     int nfil, ncol;
 
-    string asientos_sala[10][15];             //Matriz con el estado de los asientos de la sala de cine
-    //string **asientos_sala;
+    //string asientos_sala[10][15];             //Matriz con el estado de los asientos de la sala de cine
+    string **asientos_sala;
 
 };
 

@@ -13,6 +13,8 @@ using namespace std;
 static string ArchivoVentas;           //Variable global con la direccion del archivo con los reportes de ventas
 static string ArchivoTotales;          //Variable global con la direccion del archivo con los reportes totales
 static string DirArcivoAdmin = "../Asientos_cine/sudo.txt";             //Variable global con la direccion del archivo de administrador
+static string DirArchivoCartelera;
+static string DirArchivoPuestos;
 
 Cartelera menuAdmin(Cartelera _cartelera,Reportes& _reporte);          //Menu con las funciones del administrador
 bool validateAdmin(string _cont_admin);             //Valida la contraseña del administrador
@@ -23,6 +25,7 @@ int main()
 {
     string option = "";
     Cartelera _cartelera;
+    _cartelera.setDirArchivos(DirArchivoCartelera, DirArchivoPuestos);          //Se asigna nombre a los archivos
     Reportes _reporte;
     _reporte.setArchivoVentas(ArchivoVentas);
     _reporte.setArchivoTotales(ArchivoTotales);
@@ -109,6 +112,10 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
             fflush(stdin);
             cout<< "Ingrese la clasificacion de la pelicula: "; cin>>clasificacion;
             fflush(stdin);
+            cout<<endl<<"La cantidad de asientos disponibles sera numerofilas x numerocolumnas:"<<endl;
+            cout<<"Ingrese el numero de filas: "; cin>> fil;
+            cout<<"Ingrese el numero de columnas: "; cin>>col;
+            fflush(stdin);
             do{
                 cout<< "Ingrese el formato de la pelicula (3D o 2D): "; cin>>formato;
                 if (formato != "3D" && formato != "2D"){
@@ -116,16 +123,16 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
                 }
             }while (formato != "3D" && formato != "2D");
             fflush(stdin);
-            Pelicula peli(nombre,genero,sala,hora,fil=10,col=15,duracion,clasificacion,formato);
+            Pelicula peli(nombre,genero,sala,hora,fil,col,duracion,clasificacion,formato);
             _cartelera.setCartelera(stoi(_id), peli);
 
-            map<int,Pelicula>::iterator iter;
-            map<int,Pelicula> maptemp = _cartelera.getCartelera();
-            for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
-                if (iter->first == stoi(_id)){              //Mira que no hallan id iguales
-                    iter->second.showSala();
-                }
-            }
+//            map<int,Pelicula>::iterator iter;
+//            map<int,Pelicula> maptemp = _cartelera.getCartelera();
+//            for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+//                if (iter->first == stoi(_id)){              //Mira que no hallan id iguales
+//                    iter->second.showSala();
+//                }
+//            }
 
             cout<<endl<<"Pelicula agregada exitosamente."<<endl;
         }
@@ -236,19 +243,23 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
 
 //        iter->second.showSala();
 //    }
-    while(option2 != "3"){
+    while(option2 != "2"){
         _cartelera.showCartelera();         //Muestra la cartelera
         cout<<endl<<endl;
         do{
-            cout <<" 1 - Mostrar tabla de precios segun el formato de la pelicula"<<endl
-                 <<" 2 - Reservar asiento"<<endl
-                 <<" 3 - Salir"<<endl;
+            cout <<" 1 - Reservar asiento"<<endl
+                 <<" 2 - Salir"<<endl;
             cout <<"Ingrese la opcion elegida -> "; cin>>option2;
-        }while(option2 <"1" && option2 > "3");
-        if (option2 == "1"){
-            Ventas().showTablaPrecios();        //Muestra la tabla de precios
-        }
-        else if (option2 == "2") {
+        }while(option2 <"1" && option2 > "2");
+
+        if (option2 == "1") {
+            cout<<endl<<endl<< "A continuacion se muestra la tabla de precios: "<<endl;
+            char s='n';
+            do{
+                Ventas().showTablaPrecios();        //Muestra la tabla de precios
+                cout<<"Ingrese 's' para continuar: "; cin >> s;
+            }while(s != 's');
+
             int columna;
             string fila, _id;
             bool idd;           //Mira si existe el id
@@ -281,81 +292,97 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
 
             }while(idd == true);
 
+            string entradas;                        //Variable que controla el numero de entradas que va a comprar el usuario
+            bool val;
             do{
-                idd = false;
-                map<int,Pelicula>::iterator iter;
-                map<int,Pelicula> maptemp = _cartelera.getCartelera();
-                for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
-                    cout<<_id<<endl;
-                    if (iter->first == stoi(_id)){
-                        idd=true;
-                        iter->second.showSala();
-                        fflush(stdin);
-                        cout<<"Ingrese la fila del asiento que desea reservar: ";cin>>fila;
-                        if (fila[0] - 'A' <= iter->second.getFila()){       //Mira si la fila existe
+                val=true;
+                cout<<"Ingrese el numero de entradas que desea comprar: "; cin>>entradas;
+                for (unsigned int i = 0; i < (entradas.size());i++) {        //Valida que sean numeros
+                    if (!isdigit(entradas[i])){
+                        val=false;
+                        break;
+                    }
+                }
+                if(val==false) cout<<"Debe ingresar numeros enteros. Vuelve a intentarlo."<<endl;
+            }while(val == false);
+            int count_ent=0;
+            while (count_ent <= stoi(entradas) ) {
+                do{
+                    idd = false;
+                    map<int,Pelicula>::iterator iter;
+                    map<int,Pelicula> maptemp = _cartelera.getCartelera();
+                    for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+                        cout<<_id<<endl;
+                        if (iter->first == stoi(_id)){
+                            idd=true;
+                            iter->second.showSala();
                             fflush(stdin);
-                            cout<<"Ingrese la columna del asiento que desea reservar: "; cin>>columna;
-                            if (columna>0 && columna < iter->second.getColumna()){      //Mira si la columna existe
-                                idd = iter->second.validateReservar(fila,columna);      //Mira si el asiento esta ocupado
-                                if (idd == true){
-                                    //Mira a que tipo pertenece el asiento elegido;
-                                    int valor_precio=0;
-                                    string formato=iter->second.getFormato();
-                                    if(((fila[0]+(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
-                                        if(formato == "3D"){
-                                            valor_precio = 11900;
-                                            _reporte.compraVibro3d(valor_precio);                   //Guarda el registro de la compra
+                            cout<<endl<<"A continuacion realice su compra: "<<endl;
+                            cout<<"Ingrese la fila del asiento que desea reservar: ";cin>>fila;
+                            if ((fila[0]-1) - 'A' <= iter->second.getFila()){       //Mira si la fila existe
+                                fflush(stdin);
+                                cout<<"Ingrese la columna del asiento que desea reservar: "; cin>>columna;
+                                if (columna>0 && columna < iter->second.getColumna()){      //Mira si la columna existe
+                                    idd = iter->second.validateReservar(fila,columna);      //Mira si el asiento esta ocupado
+                                    if (idd == true){
+                                        //Mira a que tipo pertenece el asiento elegido;
+                                        int valor_precio=0;
+                                        string formato=iter->second.getFormato();
+                                        if(((fila[0]+(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
+                                            if(formato == "3D"){
+                                                valor_precio = 11900;
+                                                _reporte.compraVibro3d(valor_precio);                   //Guarda el registro de la compra
+                                            }
+                                            else if (formato == "2D"){
+                                                valor_precio = 9900;
+                                                _reporte.compraVibro2d(valor_precio);                  //Guarda el registro de la compra
+                                            }
                                         }
-                                        else if (formato == "2D"){
-                                            valor_precio = 9900;
-                                            _reporte.compraVibro2d(valor_precio);                  //Guarda el registro de la compra
+                                        else{                                                          //Mira si el asiento es general
+                                            if(formato == "3D"){
+                                                valor_precio = 10800;
+                                                _reporte.compraGeneral3d(valor_precio);                 //Guarda el registro de la compra
+                                            }
+                                            else if (formato == "2D"){
+                                                valor_precio = 7900;
+                                                _reporte.compraGeneral2d(valor_precio);
+                                            }
+
                                         }
-                                    }
-                                    else{                                                          //Mira si el asiento es general
-                                        if(formato == "3D"){
-                                            valor_precio = 10800;
-                                            _reporte.compraGeneral3d(valor_precio);                 //Guarda el registro de la compra
-                                        }
-                                        else if (formato == "2D"){
-                                            valor_precio = 7900;
-                                            _reporte.compraGeneral2d(valor_precio);
-                                        }
+
+                                        cout<<"El precio del asiento elegido es: $"<<valor_precio<<endl;
+                                        pagoUsuario(valor_precio);                          //El usuario realiza el pago
+
+                                        ventas_usuario.setFilaAsiento(fila);
+                                        ventas_usuario.setColumnAsiento(columna);
+                                        ventas_usuario.setValorCompra(valor_precio);           //Guarda el registro de la compra por Usuario
+                                        ventas_usuario.comprarAsientos(_cartelera,stoi(_id));        //Hace la compra del asiento
 
                                     }
+                                    else {
+                                        cout<<"Debe ingresar un asiento disponible."<<endl;
+                                    }
 
-                                    cout<<"El precio del asiento elegido es: $"<<valor_precio<<endl;
-                                    pagoUsuario(valor_precio);                          //El usuario realiza el pago
-
-                                    ventas_usuario.setFilaAsiento(fila);
-                                    ventas_usuario.setColumnAsiento(columna);
-                                    ventas_usuario.setValorCompra(valor_precio);           //Guarda el registro de la compra por Usuario
-                                    ventas_usuario.comprarAsientos(_cartelera,stoi(_id));        //Hace la compra del asiento
 
                                 }
                                 else {
-                                    cout<<"Debe ingresar un asiento disponible."<<endl;
+                                    cout<<"Ingreso una columna incorrecta"<<endl;
+                                    idd=false;
                                 }
-
-
                             }
                             else {
-                                cout<<"Ingreso una columna incorrecta"<<endl;
+                                cout<<"Ingreso una fila incorrecta"<<endl;
                                 idd=false;
                             }
                         }
-                        else {
-                            cout<<"Ingreso una fila incorrecta"<<endl;
-                            idd=false;
-                        }
-
-
                     }
-                }
-                if(idd == false)cout <<"Ingreso una fila o columna incorrecta, vuelva a intentarlo. "<<endl;
-                maptemp.clear();
-            }while(idd == false);
+                    if(idd == false)cout <<"Ingreso una fila o columna incorrecta, vuelva a intentarlo. "<<endl;
+                    //maptemp.clear();
+                }while(idd == false);
+                count_ent++;
 
-
+            }
+            option2 = "2";
         }
         else {
             _reporte.setReporteVentas(ventas_usuario);          //Se guardan las compras realizadas por el usuario
@@ -377,6 +404,7 @@ void pagoUsuario(int valor_precio){
         if (pago == false) cout<<"No ha pagado el valor requerido, vuelva a intentarlo"<<endl;
     }while(pago == false);
 
+    cout<<endl<<"Pago realizado con exito!"<<endl;
     int devuelta = dinero_usuario-valor_precio;
     resultado = devuelta;
 
