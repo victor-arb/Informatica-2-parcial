@@ -13,7 +13,7 @@ using namespace std;
 static string ArchivoVentas;           //Variable global con la direccion del archivo con los reportes de ventas
 static string ArchivoTotales;          //Variable global con la direccion del archivo con los reportes totales
 static string DirArcivoAdmin = "../Asientos_cine/sudo.txt";             //Variable global con la direccion del archivo de administrador
-static string DirArchivoCartelera;
+static string DirArchivoCartelera = "../Asientos_cine/cartelera.txt";
 static string DirArchivoPuestos;
 
 Cartelera menuAdmin(Cartelera _cartelera,Reportes& _reporte);          //Menu con las funciones del administrador
@@ -58,14 +58,15 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
     }while(val == false);
     string option1="";
     //Menu
-    while(option1 != "5"){
+    while(option1 != "6"){
         cout<<endl<<endl;
         do{
             cout <<" 1 - Ingresar una pelicula a la cartelera"<<endl
                  <<" 2 - Quitar una pelicula de la cartelera"<<endl
                  <<" 3 - Cargar Cartelera desde un Archivo con los asientos previamente reservados"<<endl
                  <<" 4 - Generar un reporte"<<endl
-                 <<" 5 - Salir y guardar cartelera en un archivo."<<endl;
+                 <<" 5 - Guardar cartelera en un archivo."<<endl
+                 <<" 6 - Salir"<<endl;
             cout <<"Ingrese la opcion elegida -> "; cin>>option1;
         }while(option1 <"1" && option1 > "5");
         if (option1 == "1"){        //Ingresa la pelicula
@@ -137,40 +138,49 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
             cout<<endl<<"Pelicula agregada exitosamente."<<endl;
         }
         else if (option1 == "2") {          //Quitar una pelicula de la cartelera
-            string _id ;
-            _cartelera.showCartelera();     //Muestra la cartelera
-            bool idd;                       //Mira si se repite el id
-            //Eliminar
-            do{
-                idd = true;
-                cout<<"Ingrese el id(identificacion) de la pelicula que desea eliminar: "; cin>>_id;
-                map<int,Pelicula>::iterator iter;
-                map<int,Pelicula> maptemp = _cartelera.getCartelera();
-                for (unsigned int i = 0; i < (_id.size());i++) {        //Valida que sean numeros
-                    if (!isdigit(_id[i])){
-                        idd=false;
-                        break;
-                    }
+            if (_cartelera.getCartelera().size()>0){
+                string _id ;
+                _cartelera.showCartelera();     //Muestra la cartelera
+                bool idd;                       //Mira si se repite el id
+                //Eliminar
 
-                }
-                if(idd == false){
-                    cout<<"Debe ingresar numeros enteros. Vuelva a intentarlo"<<endl;
-                    idd=true;
-                }else {
-                    for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
-                        if (iter->first == stoi(_id)){
+                do{
+                    idd = true;
+                    cout<<"Ingrese el id(identificacion) de la pelicula que desea eliminar: "; cin>>_id;
+                    map<int,Pelicula>::iterator iter;
+                    map<int,Pelicula> maptemp = _cartelera.getCartelera();
+                    for (unsigned int i = 0; i < (_id.size());i++) {        //Valida que sean numeros
+                        if (!isdigit(_id[i])){
                             idd=false;
-                            _cartelera.deletePelicula(stoi(_id));         //Elimina la pelicula
                             break;
                         }
+
                     }
-                    if(idd == true) cout<<"Debe ingresar un id existente, vuelva a intentarlo. "<<endl;
-                }
-            }while(idd == true);
+                    if(idd == false){
+                        cout<<"Debe ingresar numeros enteros. Vuelva a intentarlo"<<endl;
+                        idd=true;
+                    }else {
+                        for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
+                            if (iter->first == stoi(_id)){
+                                idd=false;
+                                _cartelera.deletePelicula(stoi(_id));         //Elimina la pelicula
+                                break;
+                            }
+                        }
+                        if(idd == true) cout<<"Debe ingresar un id existente, vuelva a intentarlo. "<<endl;
+                    }
+                }while(idd == true);
 
+            }
+            else {
+                cout<<"La cartelera se encuentra vacia."<<endl;
+            }
         }
-        else if (option1 == "3") {      //Carga la cartelera desde un archivo
 
+        else if (option1 == "3") {      //Carga la cartelera desde un archivo
+            _cartelera.cargarEstadoCartelera();
+            _cartelera.cargarPuestos();
+            cout<<"Se ha cargado la cartelera y los asientos exitosamente."<<endl;
 
 
         }
@@ -197,7 +207,16 @@ Cartelera menuAdmin(Cartelera _cartelera, Reportes& _reporte){
                 _reporte.generarReporteTotales();                    //Genera el reporte de ventas por usuario
             }
         }
-        else {                          //Sale y guarda la cartelera
+        else if(option1 == "5") {                          //Sale y guarda la cartelera
+            if(remove("C:\\Users\\Mario\\Desktop\\texto.txt") != 0 )
+                perror("Error al borrar archivo!.");
+//              else
+//                puts("El archivo se borro con exito!");
+            _cartelera.guardarEstadoCartelera();
+            cout<<"Se ha guardado correctamente la cartelera."<<endl;
+
+        }
+        else {
             cout<<"Ha salido del perfil de administrador. "<<endl;
         }
 
@@ -305,14 +324,14 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
                 }
                 if(val==false) cout<<"Debe ingresar numeros enteros. Vuelve a intentarlo."<<endl;
             }while(val == false);
-            int count_ent=0;
+            int count_ent=1;
             while (count_ent <= stoi(entradas) ) {
                 do{
                     idd = false;
                     map<int,Pelicula>::iterator iter;
                     map<int,Pelicula> maptemp = _cartelera.getCartelera();
                     for (iter=maptemp.begin();iter!=maptemp.end();iter++) {
-                        cout<<_id<<endl;
+                        //cout<<_id<<endl;
                         if (iter->first == stoi(_id)){
                             idd=true;
                             iter->second.showSala();
@@ -328,7 +347,7 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
                                         //Mira a que tipo pertenece el asiento elegido;
                                         int valor_precio=0;
                                         string formato=iter->second.getFormato();
-                                        if(((fila[0]+(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
+                                        if((('A' +(iter->second.getFila()-1))-fila[0]) <= 2 ){       //Mira si el asiento es vibrosound
                                             if(formato == "3D"){
                                                 valor_precio = 11900;
                                                 _reporte.compraVibro3d(valor_precio);                   //Guarda el registro de la compra
@@ -357,6 +376,8 @@ Cartelera menuUsuario(Cartelera _cartelera, Reportes &_reporte){
                                         ventas_usuario.setColumnAsiento(columna);
                                         ventas_usuario.setValorCompra(valor_precio);           //Guarda el registro de la compra por Usuario
                                         ventas_usuario.comprarAsientos(_cartelera,stoi(_id));        //Hace la compra del asiento
+                                        string puesto = fila + to_string(columna);
+                                        _cartelera.setPuestosComprados(stoi(_id), puesto);      //Guarda los puestos comprados para guardarlos en archivo
 
                                     }
                                     else {

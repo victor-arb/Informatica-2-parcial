@@ -20,9 +20,24 @@ map<int, Pelicula> Cartelera::getCartelera()
 }
 
 //Guarda la informacion de los puestos comprados para luego guardarla en un archivo
-void Cartelera::setPuestosComprados(int _id, vector<string> _puestos)
+void Cartelera::setPuestosComprados(int _id, string _puestos)
 {
-    puestos_comprados.insert(make_pair(_id, _puestos));
+    map<int,vector<string>>::iterator iter;
+    bool oper = false;          //Mira si el id ya existe en el mapa
+    for (iter = puestos_comprados.begin();iter!= puestos_comprados.end();iter++) {
+        if(iter->first == _id){
+            vector<string> temp = iter->second;
+            temp.push_back(_puestos);
+            puestos_comprados[_id] = temp;          //Agrega un puesto a una pelicula ya registrada en el papa
+            oper = true;
+        }
+    }
+    if (oper == false){
+        vector<string> temp;
+        temp.push_back(_puestos);
+        puestos_comprados.insert(make_pair(_id, temp));     //Agrega una nueva pelicula con nuevos puestos reservados
+    }
+
 }
 
 //Muestra la cartelera de peliculas
@@ -65,12 +80,15 @@ void Cartelera::showCartelera()
 //Elimina la pelicula seleccionada de acuerdo al id
 void Cartelera::deletePelicula(int _id)
 {
+    cartelera.erase(_id);
+    /*
     map<int, Pelicula>::iterator iter;
     for(iter= cartelera.begin(); iter != cartelera.end();iter++){
         if(iter->first == _id){
             cartelera.erase(_id);
         }
     }
+    */
 }
 
 //Ingresa el nombre de los archivos donde se guarda el estado de la cartelera
@@ -90,15 +108,19 @@ void Cartelera::guardarEstadoCartelera()
         exit(1);
     }
     string peli;
+    unsigned int cont_map=1;
     map<int, Pelicula>::iterator iter;
     //LLena el string con la informacion que va en el archivo
     for(iter= cartelera.begin(); iter != cartelera.end();iter++){
-        peli += to_string(iter->first) + ";" + iter->second.getNombre() + "," + iter->second.getGenero() + "," +
+        peli += to_string(iter->first) + ";" + iter->second.getNombre() + "/" + iter->second.getGenero() + "," + iter->second.getDuracion() + "," +
                 to_string(iter->second.getSala()) + "," + iter->second.getHora() + "," + to_string(iter->second.getAsientDisponible()) +
                 "," + to_string(iter->second.getAsientTotal()) + "," + iter->second.getClasificacion() + "," + iter->second.getFormato()
                 +":" + to_string(iter->second.getFila()) + "." + to_string(iter->second.getColumna()) + ".";
+        if(cont_map < cartelera.size()){
+            peli += "\n";
+        }
 
-       archivoCartel <<peli;        //Guarda la informacion en el archivo
+        archivoCartel <<peli;        //Guarda la informacion en el archivo
 
     }
 
@@ -108,6 +130,63 @@ void Cartelera::guardarEstadoCartelera()
 }
 void Cartelera::cargarEstadoCartelera()
 {
+    int idd, sala=0, asien_dispon=0, asien_totales=0, fila = 0, columna = 0 ;
+    string nombre, genero, duracion, hora, clasificacion, formato;
+
+    ifstream archivoCar;
+    archivoCar.open(archivoCartelera.c_str(), ios::in);
+    if (archivoCar.fail()){
+        cout<<"No se pudo abrir el archivo con la cartelera."<<endl;
+        exit(1);
+    }
+    string linea;
+    while(!archivoCar.eof()){ //mientras no sea final del archivo.
+           getline(archivoCar,linea);
+           unsigned int pos = linea.find(";");
+           idd = stoi(linea.substr(0,pos));
+           unsigned int postemp = linea.find("/");
+           nombre = linea.substr(pos+1,postemp-(pos+1));
+           pos = linea.find("/");
+           unsigned int i = pos+1;
+           int cont_coma = 0, cont_punto = 0;               //Cuenta las ',' y los '.' para establecer los atributos
+           while (i < linea.size()){
+               if (linea[i] == ','){
+                   unsigned int pos2 = i;
+                   cont_coma++;
+                   if (cont_coma == 1) genero = linea.substr(pos+1,pos2-(pos+1));
+                   else if (cont_coma == 2) duracion = linea.substr(pos+1,pos2-(pos+1));
+                   else if (cont_coma == 3) sala = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                   else if (cont_coma == 4) hora = linea.substr(pos+1,pos2-(pos+1));
+                   else if (cont_coma == 5) asien_dispon = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                   else if (cont_coma == 6) asien_totales = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                   pos = i;
+                   if (cont_coma == 7){
+                       clasificacion = linea.substr(pos+1,pos2-(pos+1));
+                       pos = pos2;
+                       pos2 = linea.find(":");
+                       formato = linea.substr(pos+1,pos2-(pos+1));
+                       pos = pos2;
+                   }
+                   i++;
+               }
+               else if (linea[i] == '.') {
+                   unsigned int pos2 = i;
+                   cont_punto++;
+                   if (cont_punto == 1) fila = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                   else columna = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                   pos = i;
+                   i++;
+
+               }
+               else {
+                   i++;
+               }
+           }
+           Pelicula peli_temp (nombre, genero, sala, hora, fila, columna, duracion, clasificacion, formato);
+           cartelera.insert(make_pair(idd, peli_temp));
+
+       }
+
 
 }
 
@@ -123,14 +202,17 @@ void Cartelera::guardarPuestos()
     string peli;
     map<int, vector<string>>::iterator iter;
     //LLena el string con la informacion que va en el archivo
+    unsigned int cont_map = 1;
     for( iter= puestos_comprados.begin(); iter != puestos_comprados.end();iter++){
         peli += to_string(iter->first) + ";" ;
         for (unsigned int i=0;i<iter->second.size();i++) {
              peli += iter->second[i] + ",";
         }
+        if(cont_map < puestos_comprados.size()){
+            peli += "\n";
+        }
 
-
-       archivoPuesto <<peli;        //Guarda la informacion en el archivo
+        archivoPuesto <<peli;        //Guarda la informacion en el archivo
 
     }
 
@@ -139,5 +221,43 @@ void Cartelera::guardarPuestos()
 }
 void Cartelera::cargarPuestos()
 {
+    int idd, columna;
+    string fila;
+
+    ifstream archivoPues;
+    archivoPues.open(archivoCartelera.c_str(), ios::in);
+    if (archivoPues.fail()){
+        cout<<"No se pudo abrir el archivo con los puestos reservados."<<endl;
+        exit(1);
+    }
+    string linea;
+    while(!archivoPues.eof()){ //mientras no sea final del archivo.
+           getline(archivoPues,linea);
+           unsigned int pos = linea.find(";");  //Toma la posicion entre el inicio y el ";" como el id de la pelicula
+           idd = stoi(linea.substr(0,pos));
+           unsigned int i = pos+1;
+           while (i < linea.size()){
+               if (linea[i] == ','){
+                   unsigned int pos2 = i;
+                   unsigned int postemp = linea.find(":");
+                   fila = linea.substr(pos+1,(postemp-(pos+1)));
+                   columna = stoi(linea.substr(postemp+1, pos2-(postemp+1)));
+                   pos = i;
+                   i++;
+                   //Reserva la el asiento que va encontrando con fila y columna
+                   map<int,Pelicula>::iterator iter;
+                   for (iter = cartelera.begin(); iter != cartelera.end();iter++) {
+                       if(iter->first == idd){
+                           iter->second.reservar(fila,columna);             //Hace la reservacion
+                       }
+                   }
+
+               }
+               else {
+                   i++;
+               }
+
+           }
+       }
 
 }

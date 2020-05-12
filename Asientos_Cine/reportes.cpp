@@ -31,11 +31,18 @@ void Reportes::generarReporteVentas()               //Imprime el reporte de vent
     }
     string reporte_ventas;
     string totalCompra;
+    unsigned int contmap = 1;
     map<int,Ventas>::iterator iter;
     for (iter=reporteVentas.begin(); iter!= reporteVentas.end();iter++) {
         reporte_ventas += iter->second.getNombreUsuario() + ":";      //Añade el nombre del usuario
         totalCompra = to_string(iter->second.getTotalCompra());
         reporte_ventas += totalCompra + ",";    //Añade el total comprado por el usuario
+
+        if(contmap < reporteVentas.size())
+        {
+            reporte_ventas += "\n";
+        }
+
         fileVentas << reporte_ventas;           //Guarda en el archivo
     }
 

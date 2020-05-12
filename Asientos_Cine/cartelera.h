@@ -19,7 +19,7 @@ public:
 
     //Metodos setters
     void setCartelera(int id, Pelicula _pelicula);
-    void setPuestosComprados(int _id, vector<string> _puestos);
+    void setPuestosComprados(int _id, string _puestos);
     void setDirArchivos(string _archivoCartelera, string _archivoPuestos);
 
     map<int,Pelicula> getCartelera();
