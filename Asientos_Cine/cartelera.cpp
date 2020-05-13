@@ -39,7 +39,11 @@ void Cartelera::setPuestosComprados(int _id, string _puestos)
     }
 
 }
-
+//Iguala otra cartelera modificada
+void Cartelera::actualizarCartelera(map<int, Pelicula> _temp)
+{
+    cartelera = _temp;
+}
 //Muestra la cartelera de peliculas
 void Cartelera::showCartelera()
 {
@@ -108,7 +112,7 @@ void Cartelera::guardarEstadoCartelera()
         exit(1);
     }
     string peli;
-    unsigned int cont_map=1;
+    //unsigned int cont_map=1;
     map<int, Pelicula>::iterator iter;
     //LLena el string con la informacion que va en el archivo
     for(iter= cartelera.begin(); iter != cartelera.end();iter++){
@@ -116,15 +120,13 @@ void Cartelera::guardarEstadoCartelera()
                 to_string(iter->second.getSala()) + "," + iter->second.getHora() + "," + to_string(iter->second.getAsientDisponible()) +
                 "," + to_string(iter->second.getAsientTotal()) + "," + iter->second.getClasificacion() + "," + iter->second.getFormato()
                 +":" + to_string(iter->second.getFila()) + "." + to_string(iter->second.getColumna()) + ".";
-        if(cont_map < cartelera.size()){
-            peli += "\n";
-        }
 
-        archivoCartel <<peli;        //Guarda la informacion en el archivo
+        archivoCartel <<peli<<endl;        //Guarda la informacion en el archivo
+        peli = "";
 
     }
 
-    cout<<"Se ha guardado la informacion de la cartelera con exito."<<endl;
+    //cout<<"Se ha guardado la informacion de la cartelera con exito."<<endl;
     archivoCartel.close();
 
 }
@@ -141,51 +143,57 @@ void Cartelera::cargarEstadoCartelera()
     }
     string linea;
     while(!archivoCar.eof()){ //mientras no sea final del archivo.
-           getline(archivoCar,linea);
-           unsigned int pos = linea.find(";");
-           idd = stoi(linea.substr(0,pos));
-           unsigned int postemp = linea.find("/");
-           nombre = linea.substr(pos+1,postemp-(pos+1));
-           pos = linea.find("/");
-           unsigned int i = pos+1;
-           int cont_coma = 0, cont_punto = 0;               //Cuenta las ',' y los '.' para establecer los atributos
-           while (i < linea.size()){
-               if (linea[i] == ','){
-                   unsigned int pos2 = i;
-                   cont_coma++;
-                   if (cont_coma == 1) genero = linea.substr(pos+1,pos2-(pos+1));
-                   else if (cont_coma == 2) duracion = linea.substr(pos+1,pos2-(pos+1));
-                   else if (cont_coma == 3) sala = stoi(linea.substr(pos+1,pos2-(pos+1)));
-                   else if (cont_coma == 4) hora = linea.substr(pos+1,pos2-(pos+1));
-                   else if (cont_coma == 5) asien_dispon = stoi(linea.substr(pos+1,pos2-(pos+1)));
-                   else if (cont_coma == 6) asien_totales = stoi(linea.substr(pos+1,pos2-(pos+1)));
-                   pos = i;
-                   if (cont_coma == 7){
-                       clasificacion = linea.substr(pos+1,pos2-(pos+1));
-                       pos = pos2;
-                       pos2 = linea.find(":");
-                       formato = linea.substr(pos+1,pos2-(pos+1));
-                       pos = pos2;
+       getline(archivoCar,linea);
+       if (linea != ""){            //Comprueba que la linea no este vacia
+               unsigned int pos = linea.find(";");
+               idd = stoi(linea.substr(0,pos));
+               unsigned int postemp = linea.find("/");
+               nombre = linea.substr(pos+1,postemp-(pos+1));
+               pos = linea.find("/");
+               unsigned int i = pos+1;
+               int cont_coma = 0, cont_punto = 0;               //Cuenta las ',' y los '.' para establecer los atributos
+               while (i < linea.size()){
+                   if (linea[i] == ','){
+                       unsigned int pos2 = i;
+                       cont_coma++;
+                       if (cont_coma == 1) genero = linea.substr(pos+1,pos2-(pos+1));
+                       else if (cont_coma == 2) duracion = linea.substr(pos+1,pos2-(pos+1));
+                       else if (cont_coma == 3) sala = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                       else if (cont_coma == 4) hora = linea.substr(pos+1,pos2-(pos+1));
+                       else if (cont_coma == 5) asien_dispon = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                       else if (cont_coma == 6) asien_totales = stoi(linea.substr(pos+1,pos2-(pos+1)));
+
+                       if (cont_coma == 7){
+                           clasificacion = linea.substr(pos+1,pos2-(pos+1));
+                           pos = pos2;
+                           pos2 = linea.find(":");
+                           formato = linea.substr(pos+1,pos2-(pos+1));
+                           pos = pos2;
+                       }else {
+                            pos = i;
+                       }
+
+                       i++;
                    }
-                   i++;
-               }
-               else if (linea[i] == '.') {
-                   unsigned int pos2 = i;
-                   cont_punto++;
-                   if (cont_punto == 1) fila = stoi(linea.substr(pos+1,pos2-(pos+1)));
-                   else columna = stoi(linea.substr(pos+1,pos2-(pos+1)));
-                   pos = i;
-                   i++;
+                   else if (linea[i] == '.') {
+                       unsigned int pos2 = i;
+                       cont_punto++;
+                       if (cont_punto == 1) fila = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                       else if (cont_punto == 2) columna = stoi(linea.substr(pos+1,pos2-(pos+1)));
+                       pos = i;
+                       i++;
 
+                   }
+                   else {
+                       i++;
+                   }
                }
-               else {
-                   i++;
-               }
+               Pelicula peli_temp (nombre, genero, sala, hora, fila, columna, duracion, clasificacion, formato);
+               //peli_temp.setAsientDisponible(asien_dispon);
+               cartelera.insert(make_pair(idd, peli_temp));
+
            }
-           Pelicula peli_temp (nombre, genero, sala, hora, fila, columna, duracion, clasificacion, formato);
-           cartelera.insert(make_pair(idd, peli_temp));
-
-       }
+    }
 
 
 }
@@ -199,24 +207,22 @@ void Cartelera::guardarPuestos()
         cout<<"El archivo de la cartelera no se pudo abrir."<<endl;
         exit(1);
     }
-    string peli;
+    string puestos;
     map<int, vector<string>>::iterator iter;
     //LLena el string con la informacion que va en el archivo
-    unsigned int cont_map = 1;
+    //unsigned int cont_map = 1;
     for( iter= puestos_comprados.begin(); iter != puestos_comprados.end();iter++){
-        peli += to_string(iter->first) + ";" ;
+        puestos += to_string(iter->first) + ";" ;
         for (unsigned int i=0;i<iter->second.size();i++) {
-             peli += iter->second[i] + ",";
-        }
-        if(cont_map < puestos_comprados.size()){
-            peli += "\n";
+             puestos += iter->second[i] + ",";
         }
 
-        archivoPuesto <<peli;        //Guarda la informacion en el archivo
+        archivoPuesto <<puestos<<endl;        //Guarda la informacion en el archivo
+        puestos = "";
 
     }
 
-    cout<<"Se ha guardado la informacion de la cartelera con exito."<<endl;
+    //cout<<"Se ha guardado la informacion de la cartelera con exito."<<endl;
     archivoPuesto.close();
 }
 void Cartelera::cargarPuestos()
@@ -225,7 +231,7 @@ void Cartelera::cargarPuestos()
     string fila;
 
     ifstream archivoPues;
-    archivoPues.open(archivoCartelera.c_str(), ios::in);
+    archivoPues.open(archivoPuestos.c_str(), ios::in);
     if (archivoPues.fail()){
         cout<<"No se pudo abrir el archivo con los puestos reservados."<<endl;
         exit(1);
@@ -233,31 +239,35 @@ void Cartelera::cargarPuestos()
     string linea;
     while(!archivoPues.eof()){ //mientras no sea final del archivo.
            getline(archivoPues,linea);
-           unsigned int pos = linea.find(";");  //Toma la posicion entre el inicio y el ";" como el id de la pelicula
-           idd = stoi(linea.substr(0,pos));
-           unsigned int i = pos+1;
-           while (i < linea.size()){
-               if (linea[i] == ','){
-                   unsigned int pos2 = i;
-                   unsigned int postemp = linea.find(":");
-                   fila = linea.substr(pos+1,(postemp-(pos+1)));
-                   columna = stoi(linea.substr(postemp+1, pos2-(postemp+1)));
-                   pos = i;
-                   i++;
-                   //Reserva la el asiento que va encontrando con fila y columna
-                   map<int,Pelicula>::iterator iter;
-                   for (iter = cartelera.begin(); iter != cartelera.end();iter++) {
-                       if(iter->first == idd){
-                           iter->second.reservar(fila,columna);             //Hace la reservacion
+           if(linea != ""){                 //Comprueba que la linea no este vacia
+               unsigned int pos = linea.find(";");  //Toma la posicion entre el inicio y el ";" como el id de la pelicula
+               idd = stoi(linea.substr(0,pos));
+               unsigned int i = pos+1;
+               while (i < linea.size()){
+                   if (linea[i] == ','){
+                       unsigned int pos2 = i;
+                       unsigned int postemp = linea.find(":");
+                       fila = linea.substr(pos+1,(postemp-(pos+1)));
+                       columna = stoi(linea.substr(postemp+1, pos2-(postemp+1)));
+                       pos = i;
+                       i++;
+                       //Reserva la el asiento que va encontrando con fila y columna
+                       map<int,Pelicula>::iterator iter;
+                       for (iter = cartelera.begin(); iter != cartelera.end();iter++) {
+                           if(iter->first == idd){
+                               iter->second.reservar(fila,columna);             //Hace la reservacion
+                           }
                        }
+
+                   }
+                   else {
+                       i++;
                    }
 
                }
-               else {
-                   i++;
-               }
 
            }
+
        }
 
 }

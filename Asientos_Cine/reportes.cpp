@@ -2,7 +2,7 @@
 
 Reportes::Reportes()
 {
-    cont_id = 0;
+    cont_id = 1;
     cont_gener3d=0;
     cont_gener2d=0;
     cont_vibro3d=0;
@@ -20,7 +20,8 @@ Reportes::Reportes()
 Reportes::~Reportes()
 {
 }
-void Reportes::generarReporteVentas()               //Imprime el reporte de ventas de los usuarios y lo guarda en un archivo
+
+void Reportes::generarReporteVentas(int option)               //Imprime el reporte de ventas de los usuarios y lo guarda en un archivo
 {
     ofstream fileVentas;
 
@@ -31,27 +32,60 @@ void Reportes::generarReporteVentas()               //Imprime el reporte de vent
     }
     string reporte_ventas;
     string totalCompra;
-    unsigned int contmap = 1;
+    //unsigned int contmap = 1;
     map<int,Ventas>::iterator iter;
     for (iter=reporteVentas.begin(); iter!= reporteVentas.end();iter++) {
         reporte_ventas += iter->second.getNombreUsuario() + ":";      //Añade el nombre del usuario
         totalCompra = to_string(iter->second.getTotalCompra());
-        reporte_ventas += totalCompra + ",";    //Añade el total comprado por el usuario
+        reporte_ventas += totalCompra;    //Añade el total comprado por el usuario
 
-        if(contmap < reporteVentas.size())
-        {
-            reporte_ventas += "\n";
+        if (option == 1){
+            fileVentas << reporte_ventas <<endl;           //Guarda en el archivo
         }
+        reporte_ventas = "";
 
-        fileVentas << reporte_ventas;           //Guarda en el archivo
+    }
+    //cout<<reporte_ventas<<endl;
+    if (option == 2)    //Imprime el reporte
+    {
+        cout<<reporte_ventas<<endl;
+    }
+    else {
+        reporteVentas.clear();          //Limpia el mapa
+        cont_id = 1;
     }
 
-    cout<<reporte_ventas<<endl;
 
 
-    cout<<endl<<"Se ha guardado el reporte con exito."<<endl;
+    //cout<<endl<<"Se ha guardado el reporte con exito."<<endl;
     fileVentas.close();
 
+}
+//Carga el reporte de ventas guardado previamente
+void Reportes::cargarReporteVentas()
+{
+    string nomuser ;
+    int totalcompra;
+    ifstream fileVentas;
+    fileVentas.open(ArchivoVentas.c_str(), ios::in);
+    if (fileVentas.fail()){
+        cout<<"No se pudo abrir el archivo con las ventas."<<endl;
+        exit(1);
+    }
+    string linea;
+    while(!fileVentas.eof()){ //mientras no sea final del archivo.
+           getline(fileVentas,linea);
+           if(linea != ""){                 //Comprueba que la linea no este vacia
+               unsigned int pos = linea.find(":");  //Toma la posicion entre el inicio y el ";" como el id de la pelicula
+               nomuser = linea.substr(0,pos);
+               totalcompra = stoi(linea.substr(pos+1));
+               Ventas venta_temp;
+               venta_temp.setNombreUsuario(nomuser);
+               venta_temp.setTotalCompra(totalcompra);
+               reporteVentas.insert(make_pair(cont_id,venta_temp));
+           }
+
+       }
 }
 
 void Reportes::generarReporteTotales()          //Imprime el reporte de ventas totales por genero y lo guarda en un archivo

@@ -5,6 +5,7 @@ CONFIG -= qt
 
 SOURCES += \
         cartelera.cpp \
+        login.cpp \
         main.cpp \
         pelicula.cpp \
         reportes.cpp \
@@ -12,6 +13,7 @@ SOURCES += \
 
 HEADERS += \
     cartelera.h \
+    login.h \
     pelicula.h \
     reportes.h \
     ventas.h

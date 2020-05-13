@@ -23,6 +23,7 @@ public:
     void setDirArchivos(string _archivoCartelera, string _archivoPuestos);
 
     map<int,Pelicula> getCartelera();
+    void actualizarCartelera(map<int,Pelicula>);
     void showCartelera();
     void deletePelicula(int _id);
 

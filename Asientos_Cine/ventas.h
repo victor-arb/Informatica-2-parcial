@@ -17,13 +17,14 @@ public:
     ~Ventas();
 
     void showTablaPrecios();        //Muestra la tabla de precios
-    void comprarAsientos(Cartelera _cartelera, int _id);         //Hace la reservacion del asiento;
+    Cartelera comprarAsientos(Cartelera _cartelera, int _id);         //Hace la reservacion del asiento;
     void updateTotalCompra();       //Actualiza el total comprado por el usuario
     //Metodos setters
     void setNombreUsuario(string _nombre_usuario);
     void setValorCompra(int _valor_compra);
     void setFilaAsiento(string _fila_asiento);
     void setColumnAsiento(int _col_asiento);
+    void setTotalCompra(int _total);
 
     //Metodos getters
     string getNombreUsuario();

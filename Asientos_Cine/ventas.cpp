@@ -2,7 +2,7 @@
 
 Ventas::Ventas()
 {
-
+    total_compra = 0;
 }
 Ventas::~Ventas()       //Destructor
 {
@@ -24,6 +24,10 @@ void Ventas::setFilaAsiento(string _fila_asiento)
 void Ventas::setColumnAsiento(int _col_asiento)
 {
     col_asiento=_col_asiento;
+}
+void Ventas::setTotalCompra(int _total)
+{
+    total_compra = _total;
 }
 
 //Metodos getters
@@ -47,6 +51,7 @@ int Ventas::getTotalCompra()
 {
     return total_compra;
 }
+
 //Muestra la tabla de precios
 void Ventas::showTablaPrecios()
 {
@@ -63,7 +68,7 @@ void Ventas::showTablaPrecios()
 }
 
 //Reserva el asiento
-void Ventas::comprarAsientos(Cartelera _cartelera, int _id)
+Cartelera Ventas::comprarAsientos(Cartelera _cartelera, int _id)
 {
     map<int,Pelicula> mapcartelera_temp =  _cartelera.getCartelera();
     map<int,Pelicula>::iterator iter;
@@ -72,8 +77,10 @@ void Ventas::comprarAsientos(Cartelera _cartelera, int _id)
             iter->second.reservar(fila_asiento, col_asiento);  //Hace la reservacion
         }
     }
-
+    _cartelera.actualizarCartelera(mapcartelera_temp);
     updateTotalCompra(); //Actualiza el total de las compras realizadas por el usuario
+
+    return _cartelera;
 
 }
 //Actualiza el total comprado por el usuario

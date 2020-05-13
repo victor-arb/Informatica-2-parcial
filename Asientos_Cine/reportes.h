@@ -15,10 +15,12 @@ public:
     Reportes();
     ~Reportes();
 
-    void generarReporteVentas();
+    void generarReporteVentas(int option);    //Guarda el reporte de las ventas y lo imprime segun la opcion
+    void cargarReporteVentas();     //Carga el reporte de ventas en un mapa al iniciar la aplicacion
     //void guardarReporteVentas();
 
     void generarReporteTotales();
+    //void cargarReporteTotales();
     //void guardarReporteTotales();
 
     //CargarDatos Archivo.

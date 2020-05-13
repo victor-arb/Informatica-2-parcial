@@ -10,7 +10,7 @@ Pelicula::Pelicula(string _nombre, string _genero, int _sala, string _hora, int 
     ncol = _ncol;
     duracion = _duracion;
     setAsientTotal();                       //Crea los asientos totales
-    asien_disponible = asien_total;         //Asientos totales = filas * columnas
+    setAsientDisponible(asien_total);
     setAsientosSala();                      //Crea la sala con los asientos en modo disponibles;
     clasificacion = _clasificacion;
     formato = _formato;
@@ -42,7 +42,8 @@ void Pelicula::setAsientDisponible(int _asien_disponible)
 }
 void Pelicula::setAsientTotal()
 {
-   asien_total = nfil*ncol;
+    asien_total = nfil*ncol;
+
 }
 void Pelicula::setClasificacion(string _clasificacion)
 {
@@ -203,11 +204,10 @@ void Pelicula::reservar(string fila,  int col)
         for (int j=0; j< ncol; j++) {
             if (i == _fila && j==col-1) {
                 asientos_sala[i][j] = "-";    //Realiza la reservacion
-
             }
 
         }
-    };
+    }
     asien_disponible--;
 }
 
