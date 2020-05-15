@@ -19,13 +19,13 @@ public:
     void cargarReporteVentas();     //Carga el reporte de ventas en un mapa al iniciar la aplicacion
     //void guardarReporteVentas();
 
-    void generarReporteTotales();
-    //void cargarReporteTotales();
+    void generarReporteTotales(int _option);            //Genera el reporte de las ventas totales
+    void cargarReporteTotales();
     //void guardarReporteTotales();
 
     //CargarDatos Archivo.
 
-    void setReporteVentas(Ventas _ventas);
+    void setReporteVentas(Ventas _ventas);              //Genera el reporte de las ventas por usuario y compra
     void setArchivoVentas(string _direccion_archivo);
     void setArchivoTotales(string _direccion_archivo);
 

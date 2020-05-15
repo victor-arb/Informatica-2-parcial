@@ -227,7 +227,7 @@ void Cartelera::guardarPuestos()
 }
 void Cartelera::cargarPuestos()
 {
-    int idd, columna;
+    int idd=0, columna=0;
     string fila;
 
     ifstream archivoPues;
@@ -245,17 +245,21 @@ void Cartelera::cargarPuestos()
                unsigned int i = pos+1;
                while (i < linea.size()){
                    if (linea[i] == ','){
+
                        unsigned int pos2 = i;
-                       unsigned int postemp = linea.find(":");
-                       fila = linea.substr(pos+1,(postemp-(pos+1)));
-                       columna = stoi(linea.substr(postemp+1, pos2-(postemp+1)));
+                       string lineatemp = linea.substr(pos+1, pos2-(pos2+1));    //Hace una sublinea con la fila y la conexion
+                       unsigned int postemp = lineatemp.find(":");
+                       fila = lineatemp.substr(0,postemp);
+                       columna = stoi(lineatemp.substr(postemp+1));
                        pos = i;
                        i++;
                        //Reserva la el asiento que va encontrando con fila y columna
                        map<int,Pelicula>::iterator iter;
                        for (iter = cartelera.begin(); iter != cartelera.end();iter++) {
-                           if(iter->first == idd){
+                           if(iter->first == idd){                              //Busca que la pelicula exista
                                iter->second.reservar(fila,columna);             //Hace la reservacion
+                               string puesto = fila + ":" + to_string(columna);
+                               setPuestosComprados(idd, puesto);            //Guarda el puesto que se cargo como comprado
                            }
                        }
 
