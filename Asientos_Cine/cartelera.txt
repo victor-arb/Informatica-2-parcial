@@ -1,0 +1,4 @@
+1;Extraction/Accion,120min,4,7pm,63,63,16+,2D:7.9.
+2;Aquaman/Fantasia,125min,5,6pm,35,35,14+,3D:5.7.
+3;Cars/infantil,115min,1,2pm,24,24,12+,3D:4.6.
+4;Transformers/Accion,128min,5,1pm,48,48,14+,2D:6.8.
